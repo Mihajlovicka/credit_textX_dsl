@@ -1,0 +1,163 @@
+
+Model:
+    roles*=RoleDef
+    workflows*=WorkflowDef
+    products*=Product
+;
+
+RoleDef:
+    'role' name=ID '{'
+        ('description' ':' description=STRING)?
+        'permissions' ':' '['
+            permissions+=ID[',']*
+        ']'
+    '}'
+;
+
+WorkflowDef:
+    'workflow'
+    name=ID
+    'version'
+    version=STRING
+    '{'
+        steps+=ProcessStep
+        states*=WorkflowState
+    '}'
+;
+
+ProcessStep:
+    'step'
+    name=ID
+    '{'
+        'handled_by' ':' role=[RoleDef]
+
+        ('action' ':' action=ID)?
+
+        ('on_reject' ':' on_reject=[WorkflowState])?
+
+        ('on_success' ':' on_success=[WorkflowState])?
+
+        ('next' ':' next=[WorkflowNode])?
+    '}'
+;
+
+WorkflowState:
+    'state' name=ID
+;
+
+WorkflowNode:
+    ProcessStep | WorkflowState
+;
+
+Product:
+    'product'
+    name=ID
+    'version'
+    version=STRING
+    '{'
+
+        'type' ':' type=ID
+
+        ('valid_from' ':' valid_from=STRING)?
+        ('valid_to' ':' valid_to=STRING)?
+
+        'amount'
+        'from' amount_min=NUMBER
+        'to' amount_max=NUMBER
+        currency=ID
+
+        'term'
+        'from' term_min=INT
+        'to' term_max=INT
+        'months'
+
+        workflow=WorkflowReference
+
+        interest=InterestBlock
+
+        eligibility=EligibilityBlock
+
+        fees=FeesBlock
+
+        repayment=RepaymentBlock
+
+        scoring=ScoringBlock?
+
+    '}'
+;
+
+WorkflowReference:
+    'workflow' ':'
+    workflow_name=ID
+    'version'
+    workflow_version=STRING
+;
+
+InterestBlock:
+    'interest' '{'
+        'type' ':' type=ID
+        'rate' ':' rate=NUMBER '%'
+        ('reference' ':' reference=ID)?
+    '}'
+;
+
+EligibilityBlock:
+    'eligibility' '{'
+        rules+=Rule
+    '}'
+;
+
+Rule:
+    'require'
+    field=ID
+    op=Operator
+    value=Value
+    ('weight' weight=NUMBER)?
+;
+
+Operator:
+      '>='
+    | '<='
+    | '=='
+    | '!='
+    | '>'
+    | '<'
+;
+
+
+Value:
+      STRING
+    | NUMBER
+    | BOOL
+;
+
+FeesBlock:
+    'fees' '{'
+        fees+=Fee
+    '}'
+;
+
+Fee:
+    name=ID ':'
+    percent=NUMBER '%'
+    'on' trigger=ID
+    ('frequency' freq=ID)?
+;
+
+RepaymentBlock:
+    'repayment' '{'
+        'type' ':' type=ID
+        'grace_period' ':' grace=INT 'months'
+    '}'
+;
+
+ScoringBlock:
+    'scoring' '{'
+        'threshold' ':' threshold=NUMBER
+    '}'
+;
+
+Comment:
+      /\/\/.*$/
+    | /\/\*(.|\n)*?\*\//
+;
