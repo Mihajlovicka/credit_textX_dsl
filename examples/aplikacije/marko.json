@@ -1,0 +1,17 @@
+{
+  "applicant_name": "Marko Petrović",
+  "product_name": "StambeniKredit",
+  "product_version": "1.0",
+  "requested_amount": 45000,
+  "requested_term": 240,
+  "data": {
+    "age": 34,
+    "monthly_income": 650,
+    "employment_status": "permanent",
+    "employment_months": 48,
+    "credit_score": 720,
+    "loan_to_value_ratio": 0.65,
+    "debt_to_income_ratio": 0.32,
+    "client_type": "individual"
+  }
+}

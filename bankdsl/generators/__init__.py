@@ -1,0 +1,1 @@
+from bankdsl.generators.decision_report import decision_report_generator
