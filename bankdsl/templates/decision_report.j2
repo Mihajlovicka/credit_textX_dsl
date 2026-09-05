@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<title>Izvestaj o odluci - {{ result.applicant }}</title>
+<link rel="stylesheet" href="{{ css_path }}">
+</head>
+<body>
+<div class="report">
+    <h1>Izvestaj o odluci po kreditnom zahtevu</h1>
+
+    <table class="meta">
+        <tr><td>Podnosilac</td><td>{{ result.applicant }}</td></tr>
+        <tr><td>Proizvod</td><td>{{ result.product }} (verzija {{ result.version }})</td></tr>
+        <tr><td>Trazeni iznos</td><td>{{ application.requested_amount }} {{ currency }}</td></tr>
+        <tr><td>Trazeni rok</td><td>{{ application.requested_term }} meseci</td></tr>
+        <tr><td>Rezim evaluacije</td><td>{{ result.mode }}</td></tr>
+        {% if result.mode == 'scoring' %}
+        <tr><td>Skor</td><td>{{ result.score }} / 100 (prag {{ result.threshold }})</td></tr>
+        {% endif %}
+    </table>
+
+    <h2 class="decision {{ 'approved' if result.decision == 'ODOBREN' else 'rejected' }}">
+        Odluka: {{ result.decision }}
+    </h2>
+
+    <h3>Obrazlozenje</h3>
+    <table class="rules">
+        <tr><th>Uslov</th><th>Ocekivano</th><th>Stvarna vrednost</th>{% if result.mode == 'scoring' %}<th>Tezina</th>{% endif %}<th>Status</th></tr>
+        {% for r in result.rules %}
+        <tr class="{{ 'ok' if r.passed else 'fail' }}">
+            <td>{{ r.field }} {{ r.operator }}</td>
+            <td>{{ r.expected }}</td>
+            <td>{{ r.actual }}</td>
+            {% if result.mode == 'scoring' %}<td>{{ r.weight }}</td>{% endif %}
+            <td>{{ 'OK' if r.passed else 'NIJE ISPUNJENO' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% if extra_notes %}
+    <ul class="notes">
+        {% for note in extra_notes %}<li>{{ note }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+
+    <p class="footer">Generisano automatski od strane BankCreditDSL interpretera.</p>
+</div>
+</body>
+</html>

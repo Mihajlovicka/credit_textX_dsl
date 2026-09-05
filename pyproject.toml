@@ -19,6 +19,9 @@ authors = [
 dependencies = [
     "textX>=4.0,<5",
     "click>=8.1,<9",
+    "Jinja2>=3.0",
+    "pdfkit>=1.0",
+    "graphviz>=0.20",
 ]
 
 [project.optional-dependencies]
@@ -34,7 +37,10 @@ Homepage = "https://github.com/Mihajlovicka/credit_textX_dsl"
 bankdsl = "bankdsl.cli:main"
 
 [project.entry-points."textx_languages"]
-bankdsl = "bankdsl.parser:bankdsl_language"
+bankdsl = "bankdsl.grammar:bank_credit_language"
+
+[project.entry-points."textx_generators"]
+decision_report = "bankdsl.generators.decision_report:decision_report_generator"
 
 [tool.setuptools.packages.find]
 where = ["."]
