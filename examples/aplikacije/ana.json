@@ -1,0 +1,17 @@
+{
+  "applicant_name": "Ana Jovanović",
+  "product_name": "StambeniKredit",
+  "product_version": "1.0",
+  "requested_amount": 60000,
+  "requested_term": 300,
+  "data": {
+    "age": 29,
+    "monthly_income": 520,
+    "employment_status": "permanent",
+    "employment_months": 8,
+    "credit_score": 610,
+    "loan_to_value_ratio": 0.82,
+    "debt_to_income_ratio": 0.47,
+    "client_type": "individual"
+  }
+}
