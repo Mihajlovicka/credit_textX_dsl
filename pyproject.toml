@@ -43,6 +43,7 @@ bankdsl = "bankdsl.grammar:bank_credit_language"
 
 [project.entry-points."textx_generators"]
 decision_report = "bankdsl.generators.decision_report:decision_report_generator"
+amortization = "bankdsl.generators.amortization_schedule:amortization_generator"
 
 [tool.setuptools.packages.find]
 where = ["."]

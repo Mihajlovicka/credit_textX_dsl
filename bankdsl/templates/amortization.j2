@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<title>Amortizacioni plan</title>
+<link rel="stylesheet" href="{{ css_path }}">
+</head>
+<body>
+<div class="report">
+    <h1>Amortizacioni plan otplate</h1>
+    <table class="meta">
+        <tr><td>Iznos kredita (glavnica)</td><td>{{ result.principal }} EUR</td></tr>
+        <tr><td>Godišnja kamatna stopa</td><td>{{ result.annual_rate }}%</td></tr>
+        <tr><td>Rok otplate</td><td>{{ result.n_months }} meseci ({{ (result.n_months / 12)|round(1) }} godina)</td></tr>
+        <tr><td>Period mirovanja (grace period)</td><td>{{ result.grace_period }} meseci</td></tr>
+        <tr><td><strong>Mesečna rata</strong></td><td><strong>{{ result.regular_installment }} EUR</strong></td></tr>
+        <tr><td><strong>Ukupno za vraćanje</strong></td><td><strong>{{ result.total_paid }} EUR</strong></td></tr>
+        <tr><td>Ukupan trošak kredita (kamate)</td><td>{{ result.total_interest }} EUR</td></tr>
+    </table>
+
+    <h3>Plan otplate</h3>
+    <table class="rules">
+        <tr><th>Mesec</th><th>Rata</th><th>Kamata</th><th>Glavnica</th><th>Ostatak duga</th></tr>
+        {% for row in result.schedule %}
+        <tr>
+            <td>{{ row.month }}</td>
+            <td>{{ row.payment }}</td>
+            <td>{{ row.interest }}</td>
+            <td>{{ row.principal }}</td>
+            <td>{{ row.balance }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p class="footer">Generisano automatski od strane BankCreditDSL interpretera.</p>
+</div>
+</body>
+</html>
