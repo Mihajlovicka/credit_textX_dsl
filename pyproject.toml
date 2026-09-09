@@ -36,6 +36,8 @@ Homepage = "https://github.com/Mihajlovicka/credit_textX_dsl"
 [project.scripts]
 bankdsl = "bankdsl.cli:main"
 
+bankdsl-process = "bankdsl.process_cli:cli"
+
 [project.entry-points."textx_languages"]
 bankdsl = "bankdsl.grammar:bank_credit_language"
 

@@ -47,6 +47,31 @@ CREATE TABLE IF NOT EXISTS decisions (
     explanation_json TEXT NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
+    
+    CREATE TABLE IF NOT EXISTS process_instances (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    application_id INTEGER NOT NULL REFERENCES applications(id),
+    product_name TEXT NOT NULL,
+    product_version TEXT NOT NULL,
+    workflow_name TEXT NOT NULL,
+    workflow_version TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'in_progress',
+    current_step TEXT,
+    final_state TEXT,
+    evaluation_json TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS process_step_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    process_id INTEGER NOT NULL REFERENCES process_instances(id),
+    step_name TEXT NOT NULL,
+    required_role TEXT NOT NULL,
+    executed_by_role TEXT NOT NULL,
+    output_json TEXT NOT NULL,
+    executed_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
 """
 
 
