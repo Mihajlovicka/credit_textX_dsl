@@ -20,7 +20,7 @@ dependencies = [
     "textX>=4.0,<5",
     "click>=8.1,<9",
     "Jinja2>=3.0",
-    "pdfkit>=1.0",
+    "xhtml2pdf>=0.2.18",
     "graphviz>=0.20",
 ]
 

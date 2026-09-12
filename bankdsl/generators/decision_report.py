@@ -61,12 +61,24 @@ def _jinja_env():
 
 def _try_pdf(html_path, pdf_path):
     try:
-        import pdfkit
-        pdfkit.from_file(html_path, pdf_path,
-                          options={"enable-local-file-access": None, "quiet": ""})
+        from xhtml2pdf import pisa
+
+        with open(html_path, "r", encoding="utf-8") as html_file:
+            html = html_file.read()
+
+        with open(pdf_path, "wb") as pdf_file:
+            result = pisa.CreatePDF(
+                html,
+                dest=pdf_file
+            )
+
+        if result.err:
+            raise RuntimeError("xhtml2pdf failed to generate PDF.")
+
         return True
+
     except Exception as e:
-        print(f"[decision-report] PDF generisanje preskoceno ({e}).")
+        print(f"[amortization] PDF generisanje preskoceno ({e}).")
         return False
 
 
