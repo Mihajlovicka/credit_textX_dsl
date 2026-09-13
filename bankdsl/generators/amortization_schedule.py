@@ -51,6 +51,29 @@ def _jinja_env():
     )
 
 
+def _try_pdf(html_path, pdf_path):
+    try:
+        from xhtml2pdf import pisa
+
+        with open(html_path, "r", encoding="utf-8") as html_file:
+            html = html_file.read()
+
+        with open(pdf_path, "wb") as pdf_file:
+            result = pisa.CreatePDF(
+                html,
+                dest=pdf_file
+            )
+
+        if result.err:
+            raise RuntimeError("xhtml2pdf failed to generate PDF.")
+
+        return True
+
+    except Exception as e:
+        print(f"[amortization] PDF generisanje preskoceno ({e}).")
+        return False
+
+
 @generator("BankCreditDSL", "amortization")
 def amortization_generator(metamodel, model, output_path, overwrite, debug, **custom_args):
     """Generise CSV i HTML amortizacioni plan za dati zahtev klijenta."""
@@ -80,8 +103,8 @@ def amortization_generator(metamodel, model, output_path, overwrite, debug, **cu
     base_name = splitext(basename(application_path))[0]
     csv_path = join(out_dir, f"{base_name}_amortizacija.csv")
     html_path = join(out_dir, f"{base_name}_amortizacija.html")
+    pdf_path = join(out_dir, f"{base_name}_amortizacija.pdf")
 
-    # Generiši CSV
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         schedule_sr = []
         for row in result["schedule"]:
@@ -97,12 +120,17 @@ def amortization_generator(metamodel, model, output_path, overwrite, debug, **cu
         writer.writeheader()
         writer.writerows(schedule_sr)
 
-    # Generiši HTML
     env = _jinja_env()
     template = env.get_template("amortization.j2")
     html = template.render(result=result, css_path=CSS_PATH)
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"[amortization] Rata: {result['regular_installment']} -> {csv_path}, {html_path}")
-    return csv_path
+    _try_pdf(html_path, pdf_path)
+
+    output_files = f"{csv_path}, {html_path}"
+    if Path(pdf_path).exists():
+        output_files += f", {pdf_path}"
+
+    print(f"[amortization] Mesečna rata: {result['regular_installment']} | Generisani fajlovi: {output_files}")
+    return html_path
