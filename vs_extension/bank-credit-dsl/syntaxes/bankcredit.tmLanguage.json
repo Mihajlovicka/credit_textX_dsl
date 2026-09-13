@@ -1,0 +1,178 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Bank Credit DSL",
+    "scopeName": "source.bankcredit",
+
+    "patterns": [
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#boolean"
+        },
+        {
+            "include": "#operators"
+        },
+        {
+            "include": "#numbers"
+        },
+        {
+            "include": "#units"
+        },
+        {
+            "include": "#identifiers"
+        }
+    ],
+
+    "repository": {
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-slash.bankcredit",
+                    "match": "//.*$"
+                },
+                {
+                    "name": "comment.block.bankcredit",
+                    "begin": "/\\*",
+                    "end": "\\*/"
+                }
+            ]
+        },
+
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.bankcredit",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.bankcredit",
+                            "match": "\\\\."
+                        }
+                    ]
+                }
+            ]
+        },
+
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.bankcredit",
+                    "match": "\\b(product|role|workflow|version|step|state)\\b"
+                },
+                {
+                    "name": "keyword.declaration.bankcredit",
+                    "match": "\\b(description|permissions|handled_by|action|on_reject|on_success|next)\\b"
+                },
+                {
+                    "name": "keyword.declaration.bankcredit",
+                    "match": "\\b(type|valid_from|valid_to|amount|term|months)\\b"
+                },
+                {
+                    "name": "keyword.declaration.bankcredit",
+                    "match": "\\b(interest|rate|reference)\\b"
+                },
+                {
+                    "name": "keyword.declaration.bankcredit",
+                    "match": "\\b(eligibility|require|weight)\\b"
+                },
+                {
+                    "name": "keyword.declaration.bankcredit",
+                    "match": "\\b(fees|on|frequency)\\b"
+                },
+                {
+                    "name": "keyword.declaration.bankcredit",
+                    "match": "\\b(repayment|grace_period)\\b"
+                },
+                {
+                    "name": "keyword.declaration.bankcredit",
+                    "match": "\\b(scoring|threshold)\\b"
+                }
+            ]
+        },
+
+        "boolean": {
+            "patterns": [
+                {
+                    "name": "constant.language.boolean.bankcredit",
+                    "match": "\\b(true|false|True|False)\\b"
+                }
+            ]
+        },
+
+        "operators": {
+            "patterns": [
+                {
+                    "name": "keyword.operator.comparison.bankcredit",
+                    "match": ">=|<=|==|!=|>|<"
+                },
+                {
+                    "name": "keyword.operator.assignment.bankcredit",
+                    "match": ":"
+                },
+                {
+                    "name": "keyword.operator.percentage.bankcredit",
+                    "match": "%"
+                }
+            ]
+        },
+
+        "numbers": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.float.bankcredit",
+                    "match": "\\b\\d+\\.\\d+\\b"
+                },
+                {
+                    "name": "constant.numeric.integer.bankcredit",
+                    "match": "\\b\\d+\\b"
+                }
+            ]
+        },
+
+        "units": {
+            "patterns": [
+                {
+                    "name": "keyword.other.unit.bankcredit",
+                    "match": "\\b(months?)\\b"
+                }
+            ]
+        },
+
+        "identifiers": {
+            "patterns": [
+                {
+                    "name": "entity.name.type.product.bankcredit",
+                    "match": "(?<=\\bproduct\\s)\\w+"
+                },
+                {
+                    "name": "entity.name.type.role.bankcredit",
+                    "match": "(?<=\\brole\\s)\\w+"
+                },
+                {
+                    "name": "entity.name.type.workflow.bankcredit",
+                    "match": "(?<=\\bworkflow\\s)\\w+"
+                },
+                {
+                    "name": "entity.name.type.step.bankcredit",
+                    "match": "(?<=\\bstep\\s)\\w+"
+                },
+                {
+                    "name": "entity.name.type.state.bankcredit",
+                    "match": "(?<=\\bstate\\s)\\w+"
+                },
+                {
+                    "name": "variable.other.bankcredit",
+                    "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b"
+                }
+            ]
+        }
+    }
+}
