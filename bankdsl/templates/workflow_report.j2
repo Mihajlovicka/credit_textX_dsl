@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<title>Tok procesa odobravanja - {{ application.applicant_name }}</title>
+<link rel="stylesheet" href="{{ css_path }}">
+</head>
+<body>
+<div class="report">
+    <h1>Tok procesa odobravanja</h1>
+
+    <table class="meta">
+        <tr><td>Podnosilac</td><td>{{ application.applicant_name }}</td></tr>
+        <tr><td>Proizvod</td><td>{{ product.name }} (verzija {{ product.version }})</td></tr>
+        <tr><td>Workflow</td><td>{{ workflow.name }} (verzija {{ workflow.version }})</td></tr>
+    </table>
+
+    <h2 class="decision {{ 'approved' if result.final == 'Odobreno' else 'rejected' }}">
+        Konacno stanje: {{ result.final }}
+    </h2>
+
+    <h3>Trag kroz korake</h3>
+    <table class="rules">
+        <tr><th>#</th><th>Korak / stanje</th></tr>
+        {% for step_name in result.trail %}
+        <tr><td>{{ loop.index }}</td><td>{{ step_name }}</td></tr>
+        {% endfor %}
+    </table>
+
+    <h3>Detalji po koraku</h3>
+    <table class="rules">
+        <tr><th>Korak</th><th>Uloga</th><th>Akcija</th></tr>
+        {% for step_name, output in result.steps.items() %}
+        <tr>
+            <td>{{ step_name }}</td>
+            <td>{{ output.role if output.role is defined else '-' }}</td>
+            <td>{{ output.action if output.action is defined else 'evaluacija eligibility pravila' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% if result.evaluation %}
+    <h3>Obrazlozenje odluke (eligibility provera)</h3>
+    <table class="rules">
+        <tr><th>Uslov</th><th>Ocekivano</th><th>Stvarna vrednost</th>{% if result.evaluation.mode == 'scoring' %}<th>Tezina</th>{% endif %}<th>Status</th></tr>
+        {% for r in result.evaluation.rules %}
+        <tr class="{{ 'ok' if r.passed else 'fail' }}">
+            <td>{{ r.field }} {{ r.operator }}</td>
+            <td>{{ r.expected }}</td>
+            <td>{{ r.actual }}</td>
+            {% if result.evaluation.mode == 'scoring' %}<td>{{ r.weight }}</td>{% endif %}
+            <td>{{ 'OK' if r.passed else 'NIJE ISPUNJENO' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% if result.evaluation.mode == 'scoring' %}
+    <p>Skor: {{ result.evaluation.score }} / 100 (prag {{ result.evaluation.threshold }})</p>
+    {% endif %}
+    {% endif %}
+
+    <p class="footer">Generisano automatski od strane BankCreditDSL interpretera.</p>
+</div>
+</body>
+</html>

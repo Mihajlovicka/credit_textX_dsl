@@ -1,13 +1,7 @@
 """
-Sloj skladistenja. Koristi SQLite (dovoljno za projekat/odbranu; u produkciji
-bi ovo bio Postgres, ali API ostaje isti preko repository.py).
-
-Cuva:
-  - product_versions: sirov DSL tekst svake verzije proizvoda + metapodaci
-    (ovo resava profesorovu primedbu o verzionisanju - ugovor uvek moze
-    da dohvati TACAN tekst pravila koji je vazio kad je potpisan)
-  - applications: zahtevi klijenata (JSON, van DSL-a)
-  - decisions: rezultat evaluacije za svaki zahtev (audit trag)
+Sloj skladistenja (SQLite). Cuva verzije proizvoda (sirov DSL tekst,
+da ugovor uvek moze da dohvati tacna pravila koja su vazila), zahteve
+klijenata i rezultate evaluacije.
 """
 import sqlite3
 from pathlib import Path

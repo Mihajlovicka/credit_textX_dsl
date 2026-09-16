@@ -7,3 +7,5 @@ dist/
 **/node_modules/
 **/out/
 **/package-lock.json
+/examples
+bankdsl/storage/*.sqlite3

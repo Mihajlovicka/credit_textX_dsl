@@ -4,7 +4,6 @@ Funkcije za obračun anuitetske rate i amortizacionog plana.
 from bankdsl.interpreter.fees import calculate_fees, calculate_monthly_insurance
 
 def monthly_installment(principal, annual_rate_percent, n_months):
-    """Računa mesečnu anuitetsku ratu."""
     r = (annual_rate_percent / 100) / 12
     if r == 0:
         return principal / n_months
@@ -12,7 +11,6 @@ def monthly_installment(principal, annual_rate_percent, n_months):
 
 
 def amortization_schedule(product, principal, n_months=None):
-    """Generiše kompletan plan amortizacije."""
     n_months = n_months or product.term_min
     annual_rate = product.interest.rate
     grace = product.repayment.grace

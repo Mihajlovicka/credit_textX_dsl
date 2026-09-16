@@ -62,9 +62,7 @@ def validate_model(model) -> None:
         raise SemanticValidationError(message)
 
 
-# ================================================================
 # ROLES
-# ================================================================
 
 def _validate_roles(roles) -> list[str]:
     errors = []
@@ -109,9 +107,7 @@ def _validate_roles(roles) -> list[str]:
     return errors
 
 
-# ================================================================
 # WORKFLOWS
-# ================================================================
 
 def _validate_workflows(workflows, roles) -> list[str]:
     errors = []
@@ -200,7 +196,6 @@ def _validate_workflows(workflows, roles) -> list[str]:
             reject_state = getattr(step, "on_reject", None)
             success_state = getattr(step, "on_success", None)
 
-            # handled_by must resolve to a role
             if role is None:
                 errors.append(
                     f"Workflow '{wf_name}' version '{wf_version}', step "
@@ -229,7 +224,6 @@ def _validate_workflows(workflows, roles) -> list[str]:
                             f"'{action}'."
                         )
 
-            # next must point to another step, not itself
             if next_step is not None:
                 next_name = _name(next_step)
                 if next_name == step_name:
@@ -237,14 +231,13 @@ def _validate_workflows(workflows, roles) -> list[str]:
                         f"Workflow '{wf_name}' version '{wf_version}', step "
                         f"'{step_name}' cannot point to itself with 'next'."
                     )
-                if next_name not in step_names:
+                if next_name not in step_names and next_name not in state_names:
                     errors.append(
                         f"Workflow '{wf_name}' version '{wf_version}', step "
                         f"'{step_name}' references unknown next step "
                         f"'{next_name}'."
                     )
 
-            # on_reject must point to a state
             if reject_state is not None:
                 reject_name = _name(reject_state)
                 if reject_name not in state_names:
@@ -254,7 +247,6 @@ def _validate_workflows(workflows, roles) -> list[str]:
                         f"'{reject_name}'."
                     )
 
-            #success
             if success_state is not None:
                 success_name = _name(success_state)
                 if success_name not in state_names:
@@ -279,9 +271,7 @@ def _validate_workflows(workflows, roles) -> list[str]:
     return errors
 
 
-# ================================================================
 # PRODUCTS
-# ================================================================
 
 def _validate_products(products, workflows) -> list[str]:
     errors = []
@@ -510,9 +500,7 @@ def _validate_product_workflow(product, workflows):
         )
 
     return errors
-# ================================================================
 # INTEREST
-# ================================================================
 
 def _validate_interest(product) -> list[str]:
     errors = []
@@ -559,10 +547,7 @@ def _validate_interest(product) -> list[str]:
 
     return errors
 
-
-# ================================================================
 # ELIGIBILITY
-# ================================================================
 
 def _validate_eligibility(product) -> list[str]:
     errors = []
@@ -679,9 +664,7 @@ def _validate_eligibility(product) -> list[str]:
     return errors
 
 
-# ================================================================
 # FEES
-# ================================================================
 
 def _validate_fees(product) -> list[str]:
     errors = []
@@ -747,9 +730,7 @@ def _validate_fees(product) -> list[str]:
     return errors
 
 
-# ================================================================
 # REPAYMENT
-# ================================================================
 
 def _validate_repayment(product) -> list[str]:
     errors = []
@@ -790,9 +771,7 @@ def _validate_repayment(product) -> list[str]:
     return errors
 
 
-# ================================================================
 # SCORING
-# ================================================================
 
 def _validate_scoring(product) -> list[str]:
     errors = []

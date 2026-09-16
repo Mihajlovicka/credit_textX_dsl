@@ -36,6 +36,7 @@ Projekat trenutno podržava:
 * trajno čuvanje procesnog stanja u SQLite bazi;
 * generisanje HTML/PDF izveštaja o odluci;
 * generisanje CSV i HTML amortizacionog plana;
+* generisanje HTML/PDF izveštaja o toku workflow procesa (uloge i koraci);
 * registrovanje jezika i generatora u textX-u;
 * command-line interfejs `bank-credit`;
 * instalaciju projekta preko `pip`;
@@ -236,8 +237,7 @@ Podržano je:
 
 Za `annuity` način otplate generiše se kompletan mesečni plan.
 
-Naknade iz `fees` bloka se trenutno parsiraju i čuvaju u modelu, ali nisu uključene u obračun rate ili ukupnog iznosa amortizacionog plana.
-
+Naknade iz `fees` bloka su uključene u obračun — mesečna rata u planu sadrži i obračunatu mesečnu naknadu osiguranja (`insurance_fee`, uz `total_payment` kao ukupan mesečni iznos), a jednokratne naknade (`processing`, `early_repayment`) se vraćaju odvojeno kao deo rezultata.
 ---
 
 # Proces odobravanja
@@ -290,13 +290,15 @@ Python 3.10+
 Klonirati repozitorijum i ući u njegov direktorijum:
 
 ```bash
-cd bank-credit-dsl
+git clone https://github.com/Mihajlovicka/credit_textX_dsl.git
+cd credit_textX_dsl
 ```
 
-Kreirati virtuelno okruženje:
+Kreirati i aktivirati virtuelno okruženje:
 
 ```bash
 python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
 ```
 
 # Instalacija kao paket
@@ -396,8 +398,7 @@ Izveštaj sadrži informacije o:
 
 Generator izveštaja takođe upisuje podatke o proizvodu, zahtevu i odluci u SQLite bazu.
 
-PDF izlaz zavisi od eksternog programa `wkhtmltopdf`. Ako `wkhtmltopdf` nije instaliran ili nije dostupan kroz `PATH`, HTML izveštaj se i dalje generiše.
-
+PDF izlaz koristi `xhtml2pdf`, čistu Python biblioteku instaliranu preko `pip install -e .` — ne zahteva nikakav spoljašnji program. Ako PDF generisanje iz nekog razloga ne uspe, HTML izveštaj se i dalje generiše.
 ---
 
 # Amortization generator
@@ -411,7 +412,8 @@ amortization
 generiše:
 
 * CSV amortizacioni plan;
-* HTML amortizacioni plan.
+* HTML amortizacioni plan;
+* PDF amortizacioni plan (preko iste `xhtml2pdf` biblioteke).
 
 Primer preko textX CLI-ja:
 
@@ -434,6 +436,50 @@ kamata
 glavnica
 preostalo
 ```
+
+---
+
+# Workflow report generator
+
+Generator:
+
+```text
+workflow-report
+```
+
+izvršava CEO workflow (uloge, koraci, dozvole) u jednom prolazu i generiše
+HTML izveštaj o toku procesa, i pokušava da generiše PDF.
+
+Za razliku od `decision-report` (koji proverava samo eligibility pravila) i
+interaktivnog `process` (koji čuva stanje između poziva u bazi), ovaj
+generator je jednokratna simulacija celog workflow-a — koristan za brzu
+proveru "da li bi ovaj zahtev prošao kroz ceo proces, i preko kojih tačno
+koraka i uloga".
+
+Primer preko textX CLI-ja:
+
+```bash
+textx generate examples/stambeni_kredit.credit --target workflow-report --application examples/aplikacije/marko.json
+```
+
+Isto preko custom CLI-ja:
+
+```bash
+bank-credit workflow-report examples/stambeni_kredit.credit --application examples/aplikacije/marko.json
+```
+
+Izveštaj sadrži:
+
+* proizvod i verziju workflow-a koji je korišćen;
+* konačno stanje (npr. `Odobreno`/`Odbijeno`);
+* trag kroz koje je korake zahtev prošao;
+* ulogu i akciju izvršenu na svakom koraku;
+* obrazloženje odluke (eligibility provera), ako korak predstavlja tačku
+  odlučivanja.
+
+PDF izlaz koristi istu `xhtml2pdf` biblioteku kao i `decision-report` i
+`amortization` generatori. Ako PDF ne uspe da se generiše, HTML izveštaj se
+i dalje pravi.
 
 ---
 
@@ -760,7 +806,6 @@ Moguća proširenja projekta su:
 * simulacija „šta ako“;
 * workflow dijagrami;
 * podrška za više načina otplate;
-* uključivanje naknada u finansijski obračun;
 * HTTP API;
 * web korisnički interfejs;
 * zamena SQLite storage-a PostgreSQL bazom;
