@@ -44,6 +44,41 @@
     </ul>
     {% endif %}
 
+    <!-- Sekcija sa naknadama -->
+    {% if fees %}
+    <div class="fees-section">
+        <h2 style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #ddd;">Procena troškova kredita</h2>
+        
+        <h3>Mesečna plaćanja</h3>
+        <table class="meta">
+            <tr><td>Osnovna mesečna rata</td><td>{{ ((fees.estimated_total_interest + application.requested_amount) / application.requested_term)|round(2) }} {{ currency }}</td></tr>
+            {% if fees.monthly_insurance_fee > 0 %}
+            <tr><td>+ Osiguranje (prvi mesec)</td><td>{{ fees.monthly_insurance_fee|round(2) }} {{ currency }}</td></tr>
+            <tr class="highlight"><td><strong>= Ukupno za uplatu (prvi mesec)</strong></td><td><strong>{{ ((fees.estimated_total_interest + application.requested_amount) / application.requested_term + fees.monthly_insurance_fee)|round(2) }} {{ currency }}</strong></td></tr>
+            <tr><td colspan="2" class="explanation"><em>Napomena: Osiguranje se obračunava na preostali dug i opada svakog meseca.</em></td></tr>
+            {% else %}
+            <tr class="highlight"><td><strong>= Stvarno plaćate mesečno</strong></td><td><strong>{{ ((fees.estimated_total_interest + application.requested_amount) / application.requested_term)|round(2) }} {{ currency }}</strong></td></tr>
+            {% endif %}
+        </table>
+        
+        <h3>Ukupan trošak kredita</h3>
+        <table class="meta">
+            <tr><td>Glavnica</td><td>{{ application.requested_amount|round(2) }} {{ currency }}</td></tr>
+            <tr><td>+ Ukupna kamata za {{ application.requested_term }} meseci</td><td>{{ fees.estimated_total_interest|round(2) }} {{ currency }}</td></tr>
+            {% if fees.processing_fee > 0 %}
+            <tr><td>+ Naknada za obradu (jednokratno)</td><td>{{ fees.processing_fee|round(2) }} {{ currency }}</td></tr>
+            {% endif %}
+            {% if fees.insurance_rate > 0 %}
+            <tr><td>+ Ukupno osiguranje (svi meseci)</td><td>{{ (fees.estimated_total_fees - fees.processing_fee)|round(2) }} {{ currency }}</td></tr>
+            {% endif %}
+            <tr class="highlight total"><td><strong>= UKUPNO ZA VRAĆANJE</strong></td><td><strong>{{ fees.total_cost|round(2) }} {{ currency }}</strong></td></tr>
+        </table>
+        
+        {% if fees.early_repayment_fee_rate > 0 %}
+        <p class="notes"><em>Napomena o prevremenoj otplati: Ukoliko želite da prevremeno vratite kredit, naplaćuje se naknada od {{ fees.early_repayment_fee_rate }}% na preostali iznos duga.</em></p>
+        {% endif %}
+    </div>
+    {% endif %}
     <p class="footer">Generisano automatski od strane BankCreditDSL interpretera.</p>
 </div>
 </body>

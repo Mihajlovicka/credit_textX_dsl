@@ -1,16 +1,31 @@
 body { font-family: Arial, sans-serif; margin: 40px; color: #222; }
 .report { max-width: 800px; margin: auto; }
 h1 { font-size: 20px; border-bottom: 2px solid #333; padding-bottom: 8px; }
+h3 { font-size: 16px; margin: 24px 0 8px 0; color: #333; }
 h2.decision { font-size: 18px; padding: 8px 12px; border-radius: 4px; display: inline-block; }
 h2.decision.approved { background: #d4f7dc; color: #1a6b2f; }
 h2.decision.rejected { background: #fcdada; color: #99231f; }
 table.meta { margin: 16px 0; }
-table.meta td { padding: 4px 12px 4px 0; }
+table.meta td { padding: 4px 12px 4px 0; font-size: 12px; }
 table.meta td:first-child { font-weight: bold; color: #555; }
-table.rules { border-collapse: collapse; width: 100%; margin-top: 8px; }
-table.rules th, table.rules td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; font-size: 13px; }
+table.meta tr.highlight { background: #fffacd; border-left: 4px solid #f9a825; }
+table.meta tr.highlight td { padding-left: 8px; font-size: 15px; }
+table.meta tr.total { background: #e8f5e9; border-left: 4px solid #4caf50; }
+table.meta tr.total td { padding-left: 8px; font-size: 16px; }
+table.meta td.explanation { font-size: 11px; color: #666; padding-top: 8px; font-style: italic; font-weight: normal; }
+table.rules { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: 10px; }
+table.rules th, table.rules td { border: 1px solid #ccc; padding: 3px 5px; text-align: left; font-size: 10px; }
 table.rules th { background: #f0f0f0; }
+table.rules th small { font-weight: normal; font-size: 8px; color: #666; }
 tr.ok td { background: #f4fff4; }
 tr.fail td { background: #fff4f4; }
-.notes { color: #555; font-size: 13px; }
+.notes { color: #555; font-size: 11px; }
 .footer { margin-top: 24px; font-size: 11px; color: #999; }
+.fees-section { margin: 20px 0; }
+.fees-section h2 { font-size: 16px; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+.fees-section h3 { font-size: 14px; margin: 16px 0 8px 0; color: #555; }
+.fees-section .note { font-size: 12px; color: #777; font-style: italic; }
+.fees-section tr.total { font-weight: bold; }
+table.rules td:nth-child(n+2) { text-align: right; }
+table.rules td:first-child { text-align: center; }
+table.rules th { text-align: center; }
