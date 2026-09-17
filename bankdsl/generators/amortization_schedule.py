@@ -50,18 +50,22 @@ def _jinja_env():
         trim_blocks=True, lstrip_blocks=True,
     )
 
-
-def _try_pdf(html_path, pdf_path):
+def _try_pdf(html_content, pdf_path):
     try:
         from xhtml2pdf import pisa
-
-        with open(html_path, "r", encoding="utf-8") as html_file:
-            html = html_file.read()
+        
+        char_map = {
+            'č': 'c', 'ć': 'c', 'ž': 'z', 'š': 's', 'đ': 'd',
+            'Č': 'C', 'Ć': 'C', 'Ž': 'Z', 'Š': 'S', 'Đ': 'D'
+        }
+        for sr_char, ascii_char in char_map.items():
+            html_content = html_content.replace(sr_char, ascii_char)
 
         with open(pdf_path, "wb") as pdf_file:
             result = pisa.CreatePDF(
-                html,
-                dest=pdf_file
+                html_content,
+                dest=pdf_file,
+                encoding="utf-8"
             )
 
         if result.err:
@@ -73,10 +77,8 @@ def _try_pdf(html_path, pdf_path):
         print(f"[amortization] PDF generisanje preskoceno ({e}).")
         return False
 
-
 @generator("BankCreditDSL", "amortization")
 def amortization_generator(metamodel, model, output_path, overwrite, debug, **custom_args):
-    """Generise CSV i HTML amortizacioni plan za dati zahtev klijenta."""
     
     normalized_custom_args = _normalize_custom_args(custom_args)
     application_path = normalized_custom_args.get("application")
@@ -113,10 +115,12 @@ def amortization_generator(metamodel, model, output_path, overwrite, debug, **cu
                 "rata": row["payment"],
                 "kamata": row["interest"],
                 "glavnica": row["principal"],
-                "preostalo": row["balance"]
+                "osiguranje": row["insurance_fee"],
+                "ukupno": row["total_payment"],
+                "dug": row["balance"]
             })
         
-        writer = csv.DictWriter(f, fieldnames=["mesec", "rata", "kamata", "glavnica", "preostalo"])
+        writer = csv.DictWriter(f, fieldnames=["mesec", "rata", "kamata", "glavnica", "osiguranje", "ukupno", "dug"])
         writer.writeheader()
         writer.writerows(schedule_sr)
 
@@ -126,7 +130,7 @@ def amortization_generator(metamodel, model, output_path, overwrite, debug, **cu
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
 
-    _try_pdf(html_path, pdf_path)
+    _try_pdf(html, pdf_path)
 
     output_files = f"{csv_path}, {html_path}"
     if Path(pdf_path).exists():

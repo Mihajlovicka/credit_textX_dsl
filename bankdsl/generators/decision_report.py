@@ -20,6 +20,7 @@ from textx import generator
 from bankdsl.interpreter.loader import find_product
 from bankdsl.interpreter.application import Application
 from bankdsl.interpreter.evaluator import evaluate
+from bankdsl.interpreter.fees import calculate_fees
 from bankdsl.storage.db import get_connection
 from bankdsl.storage.repository import save_product_version, save_application, save_decision
 
@@ -59,16 +60,20 @@ def _jinja_env():
     )
 
 
-def _try_pdf(html_path, pdf_path):
+def _try_pdf(html_content, pdf_path):
     try:
         from xhtml2pdf import pisa
 
-        with open(html_path, "r", encoding="utf-8") as html_file:
-            html = html_file.read()
+        char_map = {
+            'č': 'c', 'ć': 'c', 'ž': 'z', 'š': 's', 'đ': 'd',
+            'Č': 'C', 'Ć': 'C', 'Ž': 'Z', 'Š': 'S', 'Đ': 'D'
+        }
+        for sr_char, ascii_char in char_map.items():
+            html_content = html_content.replace(sr_char, ascii_char)
 
         with open(pdf_path, "wb") as pdf_file:
             result = pisa.CreatePDF(
-                html,
+                html_content,
                 dest=pdf_file
             )
 
@@ -78,7 +83,7 @@ def _try_pdf(html_path, pdf_path):
         return True
 
     except Exception as e:
-        print(f"[amortization] PDF generisanje preskoceno ({e}).")
+        print(f"[decision-report] PDF generisanje preskoceno ({e}).")
         return False
 
 
@@ -101,6 +106,12 @@ def decision_report_generator(metamodel, model, output_path, overwrite, debug, *
     product = find_product(model, application.product_name, version=application.product_version)
     result = evaluate(product, application)
 
+    fees_summary = calculate_fees(
+        product, 
+        application.requested_amount, 
+        application.requested_term
+    )
+
     conn = get_connection()
     with open(model._tx_filename, "r", encoding="utf-8") as f:
         dsl_text = f.read()
@@ -119,11 +130,12 @@ def decision_report_generator(metamodel, model, output_path, overwrite, debug, *
     html = template.render(
         result=result, application=application,
         currency=product.currency, css_path=CSS_PATH, extra_notes=[],
+        fees=fees_summary,
     )
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
 
-    _try_pdf(html_path, pdf_path)
+    _try_pdf(html, pdf_path)
 
     print(f"[decision-report] Odluka: {result['decision']} -> {html_path}")
     return html_path

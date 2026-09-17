@@ -8,25 +8,64 @@
 <body>
 <div class="report">
     <h1>Amortizacioni plan otplate</h1>
+    
+    <h3>Osnovni podaci o kreditu</h3>
     <table class="meta">
         <tr><td>Iznos kredita (glavnica)</td><td>{{ result.principal }} EUR</td></tr>
         <tr><td>Godišnja kamatna stopa</td><td>{{ result.annual_rate }}%</td></tr>
         <tr><td>Rok otplate</td><td>{{ result.n_months }} meseci ({{ (result.n_months / 12)|round(1) }} godina)</td></tr>
         <tr><td>Period mirovanja (grace period)</td><td>{{ result.grace_period }} meseci</td></tr>
-        <tr><td><strong>Mesečna rata</strong></td><td><strong>{{ result.regular_installment }} EUR</strong></td></tr>
-        <tr><td><strong>Ukupno za vraćanje</strong></td><td><strong>{{ result.total_paid }} EUR</strong></td></tr>
-        <tr><td>Ukupan trošak kredita (kamate)</td><td>{{ result.total_interest }} EUR</td></tr>
     </table>
 
-    <h3>Plan otplate</h3>
+    {% if result.fees %}
+    <h3>Mesečna plaćanja</h3>
+    <table class="meta">
+        <tr><td>Osnovna mesečna rata (glavnica + kamata)</td><td>{{ result.regular_installment }} EUR</td></tr>
+        {% if result.fees.monthly_insurance_fee > 0 %}
+        <tr><td>+ Osiguranje</td><td>{{ result.fees.monthly_insurance_fee|round(2) }} EUR</td></tr>
+        <tr class="highlight"><td><strong>= Ukupno za plaćanje (prvi mesec)</strong></td><td><strong>{{ (result.regular_installment + result.fees.monthly_insurance_fee)|round(2) }} EUR</strong></td></tr>
+        {% else %}
+        <tr class="highlight"><td><strong>= Ukupno za plaćanje</strong></td><td><strong>{{ result.regular_installment }} EUR</strong></td></tr>
+        {% endif %}
+    </table>
+
+    <h3>Ukupan trošak kredita</h3>
+    <table class="meta">
+        <tr><td>Glavnica</td><td>{{ result.principal }} EUR</td></tr>
+        <tr><td>+ Ukupna kamata</td><td>{{ result.total_interest }} EUR</td></tr>
+        {% if result.fees.processing_fee > 0 %}
+        <tr><td>+ Naknada za obradu (jednokratno)</td><td>{{ result.fees.processing_fee|round(2) }} EUR</td></tr>
+        {% endif %}
+        {% if result.fees.insurance_rate > 0 %}
+        <tr><td>+ Ukupno osiguranje (svi meseci)</td><td>{{ (result.fees.estimated_total_fees - result.fees.processing_fee)|round(2) }} EUR</td></tr>
+        {% endif %}
+        <tr class="highlight total"><td><strong>= Ukupno za vraćanje</strong></td><td><strong>{{ (result.total_paid + result.fees.estimated_total_fees)|round(2) }} EUR</strong></td></tr>
+    </table>
+    
+    {% if result.fees.early_repayment_fee_rate > 0 %}
+    <p class="notes"><em>Napomena o prevremenoj otplati: Ukoliko želite da prevremeno vratite kredit, naplaćuje se naknada od {{ result.fees.early_repayment_fee_rate }}% na preostali iznos duga.</em></p>
+    {% endif %}
+    {% endif %}
+
+    <h3>Detaljan plan otplate po mesecima</h3>
     <table class="rules">
-        <tr><th>Mesec</th><th>Rata</th><th>Kamata</th><th>Glavnica</th><th>Ostatak duga</th></tr>
+        <tr>
+            <th>Mesec</th>
+            <th>Rata<br/><small>(glavnica+kamata)</small></th>
+            <th>Kamata</th>
+            <th>Glavnica</th>
+            <th>Osiguranje</th>
+            <th>Ukupno<br/><small>(za plaćanje)</small></th>
+            <th>Preostali dug</th>
+        </tr>
         {% for row in result.schedule %}
         <tr>
             <td>{{ row.month }}</td>
             <td>{{ row.payment }}</td>
             <td>{{ row.interest }}</td>
             <td>{{ row.principal }}</td>
+            <td>{{ row.insurance_fee }}</td>
+            <td><strong>{{ row.total_payment }}</strong></td>
             <td>{{ row.balance }}</td>
         </tr>
         {% endfor %}
