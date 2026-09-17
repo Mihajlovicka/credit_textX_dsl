@@ -22,6 +22,7 @@ dependencies = [
     "Jinja2>=3.0",
     "xhtml2pdf>=0.2.18",
     "graphviz>=0.20",
+    "pygls>=2.1.1"
 ]
 
 [project.optional-dependencies]
@@ -34,9 +35,7 @@ dev = [
 Homepage = "https://github.com/Mihajlovicka/credit_textX_dsl"
 
 [project.scripts]
-bankdsl = "bankdsl.cli:main"
-
-bankdsl-process = "bankdsl.process_cli:cli"
+bank-credit = "bankdsl.cli:main"
 
 [project.entry-points."textx_languages"]
 bankdsl = "bankdsl.grammar:bank_credit_language"
@@ -49,7 +48,7 @@ amortization = "bankdsl.generators.amortization_schedule:amortization_generator"
 where = ["."]
 
 [tool.setuptools.package-data]
-bankdsl = ["grammar/*.tx"]
+bankdsl = ["grammar/*.tx", "templates/*.j2", "css/*.css"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

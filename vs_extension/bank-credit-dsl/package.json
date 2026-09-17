@@ -1,0 +1,54 @@
+{
+  "name": "bank-credit-dsl",
+  "displayName": "Bank Credit DSL",
+  "description": "VS Code language support for Bank Credit DSL",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.134.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:bankcredit"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "bankcredit",
+        "aliases": [
+          "Bank Credit DSL",
+          "bankcredit"
+        ],
+        "extensions": [
+          ".credit"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "bankcredit",
+        "scopeName": "source.bankcredit",
+        "path": "./syntaxes/bankcredit.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "@types/vscode": "^1.134.0",
+    "@vscode/vsce": "^3.9.2",
+    "typescript": "^5.9.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.0"
+  },
+  "extensionDependencies": [
+    "ms-python.python"
+  ]
+}
