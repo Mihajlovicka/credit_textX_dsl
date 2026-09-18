@@ -1,8 +1,3 @@
-"""
-Aplikacija (zahtev klijenta) NIJE deo DSL-a - po sugestiji profesora,
-bankarski sluzbenik je unosi kroz obican formular (UI/baza). Ovde je
-predstavljena kao JSON fajl koji odgovara onome sto bi front-end poslao.
-"""
 import json
 from dataclasses import dataclass, field
 
@@ -11,11 +6,10 @@ from dataclasses import dataclass, field
 class Application:
     applicant_name: str
     product_name: str
-    product_version: str          # OBAVEZNO - referenca na tacnu verziju proizvoda
+    product_version: str
     requested_amount: float
-    requested_term: int #rok trazeni
-    data: dict = field(default_factory=dict) # moze da ima jos dodatne znaci parametre da ne bude striktno pita age, inocme..
-    #deafut je {} takjo se pise da se ne deli ista instanca kod muttabile objekata
+    requested_term: int
+    data: dict = field(default_factory=dict)
 
     def get(self, field_name):
         return self.data.get(field_name) #vraca iz tog dict , ako nema None

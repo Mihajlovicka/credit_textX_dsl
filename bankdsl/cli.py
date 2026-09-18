@@ -52,8 +52,6 @@ def validate(file):
     help="Allow overwriting existing output files.",
 )
 def report(credit_file, application, output_path, overwrite):
-    """Generate a decision report."""
-
     from bankdsl.generators.decision_report import decision_report_generator
 
     model = _load_and_validate(credit_file)
@@ -92,8 +90,6 @@ def report(credit_file, application, output_path, overwrite):
     help="Allow overwriting existing output files.",
 )
 def amortization(credit_file, application, output_path, overwrite):
-    """Generate an amortization schedule."""
-
     from bankdsl.generators.amortization_schedule import amortization_generator
 
     model = _load_and_validate(credit_file)
@@ -112,6 +108,42 @@ from bankdsl.process_cli import cli as process
 
 main.add_command(process, name="process")
 
+@main.command(name="workflow-report")
+@click.argument(
+    "credit_file",
+    type=click.Path(exists=True, dir_okay=False),
+)
+@click.option(
+    "--application",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False),
+    help="Path to the client application JSON file.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    default=None,
+    type=click.Path(),
+    help="Output path.",
+)
+@click.option(
+    "--overwrite",
+    is_flag=True,
+    help="Allow overwriting existing output files.",
+)
+def workflow_report(credit_file, application, output_path, overwrite):
+    from bankdsl.generators.workflow_report import workflow_report_generator
+
+    model = _load_and_validate(credit_file)
+
+    workflow_report_generator.generator(
+        bankdsl_language(),
+        model,
+        output_path,
+        overwrite,
+        False,
+        application=application,
+    )
 
 if __name__ == "__main__":
     main()

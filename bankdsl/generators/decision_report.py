@@ -1,15 +1,10 @@
 """
-textX generator: 'decision-report'
-
-Prima .credit fajl (proizvod) + putanju do JSON aplikacije preko custom_args,
-evaluira zahtev, upisuje rezultat u bazu (storage) i generise HTML (+ PDF) izvestaj.
+textX generator 'decision-report': evaluira zahtev (application JSON)
+protiv proizvoda, upisuje rezultat u bazu i generise HTML/PDF izvestaj.
 
 Koriscenje:
     textx generate examples/stambeni_kredit.credit --target decision-report \
         --application examples/aplikacije/marko.json
-    # ili legacy forma:
-    textx generate examples/stambeni_kredit.credit --target decision-report \
-        --custom-args application=examples/aplikacije/marko.json
 """
 from os.path import dirname, join, basename, splitext
 from pathlib import Path
@@ -89,7 +84,6 @@ def _try_pdf(html_content, pdf_path):
 
 @generator("BankCreditDSL", "decision-report")
 def decision_report_generator(metamodel, model, output_path, overwrite, debug, **custom_args):
-    """Generise HTML/PDF izvestaj o odluci za dati zahtev klijenta."""
     normalized_custom_args = _normalize_custom_args(custom_args)
     application_path = normalized_custom_args.get("application")
     if not application_path:

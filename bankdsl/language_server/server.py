@@ -46,16 +46,13 @@ class BankCreditLanguageServer(LanguageServer):
 
         self.metamodel = bankdsl_language()
 
-        # Diagnostics koje ćemo koristiti i za hover.
         self.diagnostics_by_uri: dict[str, list[Diagnostic]] = {}
 
 
 server = BankCreditLanguageServer()
 
 
-# ============================================================
 # MODEL OBJECTS
-# ============================================================
 
 def iter_model_objects(obj, seen=None):
 
@@ -98,9 +95,7 @@ def extract_names_from_source(
     return list(dict.fromkeys(
         re.findall(pattern, source)
     ))
-# ============================================================
 # TEXTX LOCATION -> LSP RANGE
-# ============================================================
 
 def object_range(obj) -> Range:
 
@@ -132,9 +127,7 @@ def get_object_start(obj) -> Position:
     )
 
 
-# ============================================================
 # SOURCE RANGE HELPERS
-# ============================================================
 
 def source_position(source: str, offset: int) -> Position:
 
@@ -207,9 +200,7 @@ def diagnostic_range(
     return object_range(obj)
 
 
-# ============================================================
 # TEXTX PARSER ERROR
-# ============================================================
 
 def textx_error_to_diagnostic(
     exc: TextXError,
@@ -241,9 +232,7 @@ def textx_error_to_diagnostic(
     )
 
 
-# ============================================================
 # SEMANTIC TARGET
-# ============================================================
 
 @dataclass
 class SemanticTarget:
@@ -251,9 +240,7 @@ class SemanticTarget:
     token: str | None = None
 
 
-# ============================================================
 # OBJECT SEARCH HELPERS
-# ============================================================
 
 def object_name(obj) -> str:
     return str(
@@ -428,9 +415,7 @@ def find_product_child(
     return None
 
 
-# ============================================================
 # SEMANTIC ERROR -> TARGET
-# ============================================================
 
 def resolve_semantic_target(
     model,
@@ -439,9 +424,7 @@ def resolve_semantic_target(
 
     objects = get_model_objects(model)
 
-    # --------------------------------------------------------
     # ROLE
-    # --------------------------------------------------------
 
     match = re.search(
         r"Role '([^']+)'",
@@ -472,9 +455,7 @@ def resolve_semantic_target(
             token,
         )
 
-    # --------------------------------------------------------
     # WORKFLOW + STEP
-    # --------------------------------------------------------
 
     match = re.search(
         r"Workflow '([^']+)' version '([^']+)'",
@@ -579,9 +560,7 @@ def resolve_semantic_target(
                 None,
             )
 
-    # --------------------------------------------------------
     # PRODUCT
-    # --------------------------------------------------------
 
     product_match = re.search(
         r"Product '([^']+)' version '([^']+)'",
@@ -824,9 +803,7 @@ def resolve_semantic_target(
             None,
         )
 
-    # --------------------------------------------------------
     # PRODUCT WITHOUT VERSION
-    # --------------------------------------------------------
 
     match = re.search(
         r"Product '([^']+)'",
@@ -847,9 +824,7 @@ def resolve_semantic_target(
             None,
         )
 
-    # --------------------------------------------------------
     # FALLBACK
-    # --------------------------------------------------------
 
     return SemanticTarget(
         None,
@@ -857,9 +832,7 @@ def resolve_semantic_target(
     )
 
 
-# ============================================================
 # SEMANTIC DIAGNOSTICS
-# ============================================================
 
 def semantic_error_to_diagnostics(
     model,
@@ -907,9 +880,6 @@ def semantic_error_to_diagnostics(
             )
 
         else:
-
-            # Fallback ako iz nekog razloga
-            # ne možemo povezati grešku sa model objektom.
             range_ = Range(
                 start=Position(
                     line=0,
@@ -933,9 +903,7 @@ def semantic_error_to_diagnostics(
     return diagnostics
 
 
-# ============================================================
 # DOCUMENT VALIDATION
-# ============================================================
 
 def validate_document(
     uri: str,
@@ -975,9 +943,7 @@ def validate_document(
     return diagnostics
 
 
-# ============================================================
 # PUBLISH DIAGNOSTICS
-# ============================================================
 
 def publish_diagnostics(
     ls: LanguageServer,
@@ -995,9 +961,7 @@ def publish_diagnostics(
     )
 
 
-# ============================================================
 # DID OPEN
-# ============================================================
 
 @server.feature("textDocument/didOpen")
 async def did_open(
@@ -1021,9 +985,7 @@ async def did_open(
     )
 
 
-# ============================================================
 # DID CHANGE
-# ============================================================
 
 @server.feature("textDocument/didChange")
 async def did_change(
@@ -1047,9 +1009,7 @@ async def did_change(
     )
 
 
-# ============================================================
 # HOVER
-# ============================================================
 
 def position_in_range(
     position: Position,
@@ -1132,7 +1092,6 @@ async def hover(
     )
 
 
-###############################################
 #Completition
 def get_word_before_cursor(source: str, position: Position) -> str:
     lines = source.splitlines()
@@ -1217,9 +1176,7 @@ async def completion(
     source = document.source
     position = params.position
 
-    # ---------------------------------------------------------
     # Text before cursor
-    # ---------------------------------------------------------
 
     lines = source.splitlines()
 
@@ -1233,9 +1190,7 @@ async def completion(
 
     current_line = lines[position.line][:position.character]
 
-    # ---------------------------------------------------------
     # Current word / prefix
-    # ---------------------------------------------------------
 
     match = re.search(
         r"[A-Za-z_][A-Za-z0-9_]*$",
@@ -1251,9 +1206,7 @@ async def completion(
         file=sys.stderr,
         flush=True,
     )
-    # ---------------------------------------------------------
     # Parse current model
-    # ---------------------------------------------------------
 
     try:
         model = ls.metamodel.model_from_str(
@@ -1263,18 +1216,15 @@ async def completion(
     except TextXError:
         model = None
 
-    # ---------------------------------------------------------
     # Collect model objects
-    # ---------------------------------------------------------
+
     roles = []
     workflows = []
     products = []
     states = []
     steps = []
 
-    # ---------------------------------------------------------
     # First try to use the parsed textX model
-    # ---------------------------------------------------------
 
     if model is not None:
 
@@ -1307,9 +1257,7 @@ async def completion(
                     steps.append(name)
 
 
-    # ---------------------------------------------------------
     # Fallback: document may currently contain syntax errors
-    # ---------------------------------------------------------
 
     if not roles:
         roles = extract_names_from_source(
@@ -1341,9 +1289,7 @@ async def completion(
             "step",
         )
 
-    # ---------------------------------------------------------
     # Helper
-    # ---------------------------------------------------------
 
     def make_items(
         values,
@@ -1361,9 +1307,7 @@ async def completion(
             or value.lower().startswith(prefix.lower())
         ]
 
-    # =========================================================
     # REFERENCES
-    # =========================================================
 
     # handled_by:
     if re.search(
@@ -1440,9 +1384,7 @@ async def completion(
             ),
         )
 
-    # =========================================================
     # REQUIRE
-    # =========================================================
 
     # require <field> <operator>
     if re.search(
@@ -1515,9 +1457,7 @@ async def completion(
             ),
         )
 
-    # =========================================================
     # ROLE BODY
-    # =========================================================
 
     if re.search(
         r"\brole\s+\w+\s*\{[^{}]*$",
@@ -1538,9 +1478,7 @@ async def completion(
             ),
         )
 
-    # =========================================================
     # WORKFLOW BODY
-    # =========================================================
 
     if re.search(
         r"\bworkflow\s+\w+\s+version\s+\"[^\"]*\"\s*\{[^{}]*$",
@@ -1561,9 +1499,7 @@ async def completion(
             ),
         )
 
-    # =========================================================
     # STEP BODY
-    # =========================================================
 
     if re.search(
         r"\bstep\s+\w+\s*\{[^{}]*$",
@@ -1587,9 +1523,7 @@ async def completion(
             ),
         )
 
-    # =========================================================
     # PRODUCT BODY
-    # =========================================================
 
     if re.search(
         r"\bproduct\s+\w+\s+version\s+\"[^\"]*\"\s*\{[^{}]*$",
@@ -1619,9 +1553,7 @@ async def completion(
             ),
         )
 
-    # =========================================================
     # TOP LEVEL
-    # =========================================================
 
     keywords = [
         "product",

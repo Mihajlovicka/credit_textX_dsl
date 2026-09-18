@@ -1,14 +1,9 @@
-"""
-Repository sloj - jedina tacka koja govori SQL. Ostatak sistema
-(generatori, CLI, buduci API) zove samo ove funkcije.
-"""
+
 import json
 from bankdsl.storage.db import get_connection
 
 
 def save_product_version(conn, product, dsl_text, source_file=None):
-    """Cuva/azurira sirov DSL tekst tacne verzije proizvoda - trajni zapis pravila
-    koja vaze za svaki ugovor potpisan pod tom verzijom."""
     conn.execute(
         """INSERT INTO product_versions (name, version, valid_from, valid_to, dsl_text, source_file)
            VALUES (?, ?, ?, ?, ?, ?)
@@ -40,6 +35,17 @@ def list_product_versions(conn, name=None):
 
 
 def save_application(conn, application):
+    existing = conn.execute(
+        """SELECT id FROM applications
+           WHERE applicant_name=? AND product_name=? AND product_version=?
+             AND requested_amount=? AND requested_term=?
+           ORDER BY id DESC LIMIT 1""",
+        (application.applicant_name, application.product_name, application.product_version,
+         application.requested_amount, application.requested_term),
+    ).fetchone()
+    if existing is not None:
+        return existing["id"]
+
     cur = conn.execute(
         """INSERT INTO applications
            (applicant_name, product_name, product_version, requested_amount, requested_term, data_json)
@@ -71,9 +77,6 @@ def get_application_history(conn, applicant_name):
     return [dict(r) for r in rows]
 
 def get_application_by_id(conn, application_id):
-    """Rekonstruise Application objekat iz baze - potrebno da bi se proces
-    mogao nastaviti u POTPUNO novom pozivu programa (drugi akter, drugi dan),
-    bez da onaj ko nastavlja proces mora sam da ima JSON fajl zahteva."""
     from bankdsl.interpreter.application import Application
 
     row = conn.execute(
@@ -91,9 +94,7 @@ def get_application_by_id(conn, application_id):
     )
 
 
-# ================================================================
-# PROCESS INSTANCES - interaktivni, korak-po-korak workflow
-# ================================================================
+# PROCESS INSTANCES
 
 def create_process_instance(conn, application_id, product, workflow, entry_step_name):
     cur = conn.execute(
